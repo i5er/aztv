@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AZ TV</title>
+<meta name="description" content="واجهة رئيسية عربية زجاجية وشاشة توقف سعودية لتلفزيونات Android TV و Google TV. نزّلها على شاشتك مجاناً.">
+<link rel="icon" href="img/icon.png">
+<meta property="og:title" content="AZ TV">
+<meta property="og:image" content="img/banner.png">
+<style>
+  @font-face { font-family: Thmanyah; src: url(fonts/Thmanyah-Light.woff2) format("woff2"); font-weight: 300; }
+  @font-face { font-family: Thmanyah; src: url(fonts/Thmanyah-Regular.woff2) format("woff2"); font-weight: 400; }
+  @font-face { font-family: Thmanyah; src: url(fonts/Thmanyah-Medium.woff2) format("woff2"); font-weight: 500; }
+  @font-face { font-family: ThmanyahDisplay; src: url(fonts/ThmanyahDisplay-Bold.woff2) format("woff2"); font-weight: 700; }
+
+  :root {
+    --bg: #0c1f17;
+    --bg2: #12301f;
+    --ink: #f4efe2;
+    --dim: #b9c2b8;
+    --gold: #e2bc72;
+    --gold-ink: #241a06;
+    --glass: rgba(255, 255, 255, .07);
+    --line: rgba(255, 255, 255, .14);
+    --ok: #7be0a4;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; color: var(--ink); background: var(--bg);
+    font: 400 18px/1.75 Thmanyah, "Noto Naskh Arabic", system-ui, sans-serif;
+    background-image: radial-gradient(1200px 600px at 85% -10%, #1f4a33 0%, transparent 60%),
+                      radial-gradient(900px 500px at 0% 110%, #3b2a10 0%, transparent 55%);
+    background-attachment: fixed;
+  }
+  a { color: var(--gold); }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+  h1, h2, h3 { font-family: ThmanyahDisplay, Thmanyah, sans-serif; font-weight: 700; line-height: 1.25; margin: 0; }
+  h2 { font-size: clamp(28px, 4vw, 40px); margin-bottom: 10px; }
+  .lead { color: var(--dim); font-size: 19px; margin: 0 0 28px; }
+
+  nav { position: sticky; top: 0; z-index: 5; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+        background: rgba(12, 31, 23, .6); border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; align-items: center; gap: 14px; height: 64px; }
+  nav img { width: 34px; height: 34px; border-radius: 9px; }
+  nav b { font-family: ThmanyahDisplay; font-size: 20px; }
+  nav .links { margin-inline-start: auto; display: flex; gap: 22px; }
+  nav .links a { color: var(--ink); text-decoration: none; font-size: 16px; opacity: .85; }
+  nav .links a:hover { opacity: 1; color: var(--gold); }
+
+  .hero { padding: 72px 0 40px; text-align: center; }
+  .hero h1 { font-size: clamp(40px, 8vw, 84px); }
+  .hero h1 span { color: var(--gold); }
+  .hero p { color: var(--dim); font-size: clamp(18px, 2.4vw, 23px); max-width: 720px; margin: 16px auto 30px; }
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 26px; border-radius: 999px;
+         font: 500 18px Thmanyah, sans-serif; text-decoration: none; transition: transform .15s, background .15s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn.gold { background: var(--gold); color: var(--gold-ink); }
+  .btn.ghost { border: 1px solid var(--line); color: var(--ink); background: var(--glass); }
+  .row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  .shot { margin: 46px auto 0; border-radius: 22px; overflow: hidden; border: 1px solid var(--line);
+          box-shadow: 0 30px 80px rgba(0, 0, 0, .45); }
+  .shot img { display: block; width: 100%; height: auto; }
+  figure.shot { padding: 0; background: #0b1d14; }
+  figcaption { display: flex; justify-content: space-around; padding: 14px 10px 18px; font-size: clamp(15px, 2.2vw, 22px); }
+  figcaption i { font-style: normal; font-size: .8em; padding: 2px 12px; border-radius: 999px; background: var(--gold);
+                 color: var(--gold-ink); margin-inline-end: 8px; }
+  figcaption i.was { background: rgba(255,255,255,.12); color: var(--ink); }
+  .eyebrow { display: inline-block; font: 700 18px "Avenir Next", system-ui, sans-serif; letter-spacing: 3px; direction: ltr;
+             color: var(--gold); border: 1px solid rgba(226,188,114,.45); padding: 4px 16px; border-radius: 999px; margin-bottom: 18px; }
+
+  section { padding: 70px 0; }
+  .glass { background: var(--glass); border: 1px solid var(--line); border-radius: 22px;
+           backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .card { padding: 22px 22px 20px; }
+  .card .ic { font-size: 28px; line-height: 1; margin-bottom: 12px; }
+  .card h3 { font-size: 20px; margin-bottom: 6px; }
+  .card p { margin: 0; color: var(--dim); font-size: 16px; line-height: 1.7; }
+  .card.star { border-color: rgba(226, 188, 114, .55); background: linear-gradient(160deg, rgba(226, 188, 114, .16), var(--glass)); }
+  .tag { display: inline-block; font-size: 13px; padding: 2px 10px; border-radius: 999px; background: var(--gold);
+         color: var(--gold-ink); margin-inline-start: 6px; vertical-align: 3px; }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .apk { padding: 26px; display: flex; flex-direction: column; gap: 10px; }
+  .apk h3 { font-size: 24px; }
+  .apk p { margin: 0; color: var(--dim); }
+  .apk .meta { font-size: 14px; color: var(--dim); opacity: .8; }
+  .apk .btn { align-self: flex-start; margin-top: 6px; }
+
+
+  ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 0; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; position: relative; padding: 18px 70px 18px 22px; }
+  ol.steps li::before { content: counter(s); position: absolute; right: 20px; top: 16px; width: 34px; height: 34px;
+                        border-radius: 50%; background: var(--gold); color: var(--gold-ink); display: grid;
+                        place-items: center; font: 700 17px ThmanyahDisplay, sans-serif; }
+  ol.steps b { color: var(--ink); }
+  ol.steps li { color: var(--dim); }
+  kbd { font-family: inherit; padding: 1px 8px; border-radius: 7px; border: 1px solid var(--line); background: rgba(255,255,255,.08); color: var(--ink); }
+
+  .fixed { display: grid; grid-template-columns: 1.1fr .9fr; gap: 28px; align-items: center; }
+  .mock { padding: 22px; }
+  .mock .r { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-radius: 12px;
+             background: rgba(255,255,255,.09); margin: 6px 0; font-size: 16px; }
+  .mock .r.on { background: #f7f7f7; color: #111; transform: scale(1.02); }
+  .mock .r .v { color: var(--dim); }
+  .mock .r.on .v { color: #1d7a45; font-weight: 500; }
+  .mock .t { font-family: ThmanyahDisplay; font-size: 24px; margin-bottom: 8px; }
+
+  details { padding: 16px 22px; margin-bottom: 10px; }
+  summary { cursor: pointer; font-weight: 500; }
+  details p { color: var(--dim); margin: 10px 0 0; }
+
+  footer { padding: 40px 0 60px; color: var(--dim); font-size: 15px; text-align: center; border-top: 1px solid var(--line); }
+
+  @media (max-width: 760px) {
+    body { font-size: 17px; }
+    nav .links { display: none; }
+    .two, .fixed { grid-template-columns: 1fr; }
+    section { padding: 50px 0; }
+    .hero { padding-top: 44px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <img src="img/icon.png" alt="">
+    <b>AZ TV</b>
+    <div class="links">
+      <a href="#features">المميزات</a>
+      <a href="#fixed">الواجهة الثابتة</a>
+      <a href="#download">التنزيل</a>
+      <a href="#faq">أسئلة</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">AZ TV</div>
+    <h1>شاشتك <span>صارت تشبهك</span></h1>
+    <p>واجهة رئيسية عربية بزجاج شفاف، وشاشة توقف سعودية بالساعة والتاريخ الهجري ومواقيت الصلاة ومباريات فريقك. لتلفزيونات Android TV و Google TV، مجاناً.</p>
+    <div class="row">
+      <a class="btn gold" href="#download">نزّلها على شاشتك ↓</a>
+      <a class="btn ghost" href="#features">وش فيها؟</a>
+    </div>
+    <figure class="shot"><img src="img/home.jpg" alt="قبل: واجهة Google TV. بعد: واجهة AZ TV" width="2400" height="724">
+      <figcaption><span><i>بعد</i> واجهة AZ TV</span><span><i class="was">قبل</i> واجهة Google TV</span></figcaption></figure>
+  </div>
+</header>
+
+<section id="features">
+  <div class="wrap">
+    <h2>الفكرة</h2>
+    <p class="lead">بدل واجهة مليانة إعلانات واقتراحات، تفتح الشاشة على صورة من طبيعة السعودية، فوقها زجاج صافي فيه اللي يهمك بس: الساعة، الصلاة القادمة، الطقس، مباراة فريقك، وتطبيقاتك المفضلة تحت.</p>
+    <div class="grid">
+      <div class="glass card"><div class="ic">🪟</div><h3>زجاج شفاف</h3><p>البطاقات والشريط العلوي زجاج صافي فوق الصورة، والخلفية تتغير كل نص ساعة.</p></div>
+      <div class="glass card"><div class="ic">🕌</div><h3>الصلاة القادمة</h3><p>بطاقة بمواقيت صلاة مدينتك والوقت الباقي للإقامة، والتاريخ الهجري تحت الساعة.</p></div>
+      <div class="glass card"><div class="ic">⚽</div><h3>مباراة فريقك</h3><p>المباراة القادمة للأندية اللي تتابعها، بأسماء الدوريات والفرق بالعربي.</p></div>
+      <div class="glass card"><div class="ic">⛅</div><h3>الطقس والترحيب</h3><p>طقس مدينتك وتحية باسمك: «مساء الخير يا …» حسب الحساب اللي فاتح.</p></div>
+      <div class="glass card"><div class="ic">👨‍👩‍👧</div><h3>«مين يشاهد اليوم؟»</h3><p>حساب لكل واحد في البيت، برمز سري لو تبغى، وكل حساب له تطبيقاته وإعداداته.</p></div>
+      <div class="glass card"><div class="ic">📱</div><h3>صورك من الجوال</h3><p>امسح الرمز من جوالك وارسل صورك، وتصير خلفية حسابك وشاشة التوقف.</p></div>
+      <div class="glass card"><div class="ic">🗂️</div><h3>التطبيقات المفتوحة</h3><p>مبدّل تطبيقات مثل الآيفون: سكّر أو أعد تشغيل أو احذف أي تطبيق بضغطة.</p></div>
+      <div class="glass card"><div class="ic">🌙</div><h3>شاشة التوقف</h3><p>ساعة كبيرة، رمضان والإقامة، مباريات، أسواق، وآية وحديث اليوم فوق مناظر سعودية.</p></div>
+      <div class="glass card star"><div class="ic">📌</div><h3>واجهة ثابتة <span class="tag">جديد</span></h3><p>تبقى AZ TV الواجهة الرئيسية دائماً، حتى لو التحديث رجّع واجهة جوجل.</p></div>
+    </div>
+    <figure class="shot"><img src="img/screensaver.jpg" alt="قبل: شاشة توقف جوجل. بعد: شاشة AZ TV" width="2400" height="724" loading="lazy">
+      <figcaption><span><i>بعد</i> شاشة AZ TV</span><span><i class="was">قبل</i> شاشة Google</span></figcaption></figure>
+  </div>
+</section>
+
+<section id="fixed">
+  <div class="wrap fixed">
+    <div>
+      <h2>الواجهة الرئيسية الثابتة</h2>
+      <p class="lead">بعض تلفزيونات Google TV ترجّع واجهتها الأصلية بعد تحديث أو إعادة تشغيل. من الحين، AZ TV ترجع نفسها فوراً، وتبقى هي الواجهة ولا تتغير أبداً.</p>
+      <ol class="steps">
+        <li class="glass">افتح <b>الإعدادات</b> من الشريط العلوي في AZ TV.</li>
+        <li class="glass">اضغط OK على <b>الواجهة الرئيسية الثابتة</b>. إذا سألك التلفزيون عن تطبيق الواجهة، اختر <b>AZ TV</b>.</li>
+        <li class="glass">إذا فتحت لك <b>إمكانية الوصول</b>، فعّل <b>«AZ TV: الواجهة الثابتة»</b> وارجع. تصير القيمة <b style="color:var(--ok)">مفعّلة ✓</b>.</li>
+      </ol>
+      <p class="lead" style="margin-top:16px;font-size:16px">الخدمة تشوف بس أي تطبيق صار في المقدمة، وما تقرأ شي من الشاشة. وللإيقاف: اضغط مطوّلاً على نفس الخيار.</p>
+    </div>
+    <div class="glass mock" aria-hidden="true">
+      <div class="t">الإعدادات</div>
+      <div class="r on"><span>الواجهة الرئيسية الثابتة</span><span class="v">مفعّلة ✓</span></div>
+      <div class="r"><span>الساعة</span><span class="v">١٢ ساعة</span></div>
+      <div class="r"><span>الأرقام</span><span class="v">عربية ١٢٣</span></div>
+      <div class="r"><span>المدينة والفرق المتابعة</span><span class="v">AZ TV</span></div>
+      <div class="r"><span>ترتيب المفضلة</span><span class="v"></span></div>
+      <div class="r"><span>الحسابات</span><span class="v">مين يشاهد اليوم؟</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="download">
+  <div class="wrap">
+    <h2>نزّلها على شاشتك</h2>
+    <p class="lead">تطبيقين: الواجهة الرئيسية، وشاشة التوقف. الأفضل تركّب الاثنين.</p>
+    <div class="two">
+      <div class="glass apk">
+        <h3>AZ TV · الواجهة الرئيسية</h3>
+        <p>الواجهة الزجاجية، الحسابات، الإعدادات، والواجهة الثابتة.</p>
+        <div class="meta">az-tv-home.apk · <span data-size="az-tv-home.apk">٣ م.ب</span> · Android 8 وأحدث</div>
+        <a class="btn gold" href="az-tv-home.apk" download>تنزيل الواجهة ↓</a>
+      </div>
+      <div class="glass apk">
+        <h3>شاشة AZ TV · شاشة التوقف</h3>
+        <p>الساعة والهجري والصلاة والمباريات والطقس فوق مناظر سعودية.</p>
+        <div class="meta">az-tv-screensaver.apk · <span data-size="az-tv-screensaver.apk">٥ م.ب</span> · Android 5 وأحدث</div>
+        <a class="btn gold" href="az-tv-screensaver.apk" download>تنزيل شاشة التوقف ↓</a>
+      </div>
+    </div>
+
+
+    <h3 style="font-size:24px;margin:40px 0 14px">التركيب على التلفزيون</h3>
+    <ol class="steps">
+      <li class="glass">من متجر Google Play على التلفزيون، ثبّت تطبيق <b>Downloader</b> (من AFTVnews، مجاني).</li>
+      <li class="glass">من <b>الإعدادات ← الخصوصية ← الأمان والقيود ← مصادر غير معروفة</b> اسمح لـ <b>Downloader</b> بتثبيت التطبيقات.</li>
+      <li class="glass">افتح Downloader، واكتب رابط هذا الموقع، واضغط <kbd>Go</kbd>. ستفتح هذه الصفحة: نزّل الواجهة ثم شاشة التوقف واضغط <b>تثبيت</b> لكل واحد.</li>
+      <li class="glass">افتح <b>AZ TV</b> من قائمة التطبيقات، ثم <b>الإعدادات ← الواجهة الرئيسية الثابتة</b>. خلاص، صارت واجهتك.</li>
+      <li class="glass">لشاشة التوقف: <b>الإعدادات ← النظام ← شاشة التوقف</b> (أو «الوضع المحيط») واختر <b>شاشة AZ TV</b>.</li>
+    </ol>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <h2>أسئلة</h2>
+        <details class="glass"><summary>هل هو آمن؟</summary><p>ما يحذف أي تطبيق، وما يلمس AirPlay ولا Chromecast ولا الصوت ولا المداخل. وتقدر ترجع واجهة التلفزيون الأصلية متى ما بغيت: أوقف «الواجهة الثابتة» بضغطة مطوّلة، أو احذف التطبيق.</p></details>
+    <details class="glass"><summary>يشتغل على أي تلفزيون؟</summary><p>أي تلفزيون أو جهاز Android TV أو Google TV (TCL، Sony، Xiaomi، Chromecast مع Google TV، وغيرها).</p></details>
+    <details class="glass"><summary>كان عندي نسخة قديمة، ما رضى يحدّث؟</summary><p>إذا قال «التطبيق غير مثبّت» احذف النسخة القديمة أول ثم ثبّت الجديدة (النسخ القديمة موقّعة بمفتاح ثاني).</p></details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap"><img src="img/icon.png" alt="" width="40" height="40" style="border-radius:11px;vertical-align:middle;margin-inline-end:10px">AZ TV · © <span id="y">2026</span> · مجاني</div>
+</footer>
+
+<script>
+  document.getElementById("y").textContent = new Date().getFullYear();
+  // real APK sizes when the server answers HEAD
+  document.querySelectorAll("[data-size]").forEach(function (el) {
+    fetch(el.dataset.size, { method: "HEAD" }).then(function (r) {
+      var n = +r.headers.get("content-length");
+      if (r.ok && n) el.textContent = (n / 1048576).toLocaleString("ar-SA", { maximumFractionDigits: 1 }) + " م.ب";
+    }).catch(function () {});
+  });
+</script>
+</body>
+</html>
