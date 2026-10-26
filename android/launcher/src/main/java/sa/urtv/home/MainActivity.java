@@ -239,7 +239,7 @@ public class MainActivity extends Activity {
         // Scrim: darker at the top (clock, pills) and bottom (dock) so text stays readable.
         View scrim = new View(this);
         scrim.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{0x99000000, 0x33000000, 0x14000000, 0x40000000, 0xB3000000}));
+                new int[]{0x8C000000, 0x40000000, 0x26000000, 0x4D000000, 0xB3000000}));
         root.addView(scrim, new FrameLayout.LayoutParams(-1, -1));
         gridShade = new View(this);
         gridShade.setBackground(new Glass(gridShade, 0, 0x8C000000, 0x00FFFFFF, false));   // the photo frosts behind the grid
@@ -272,25 +272,27 @@ public class MainActivity extends Activity {
         int screenH = getResources().getDisplayMetrics().heightPixels;
         content.addView(hero, new LinearLayout.LayoutParams(-1, screenH));
 
-        hero.addView(buildHeader(), lp(-1, dp(40), Gravity.TOP, dp(48), dp(22), dp(48), 0));
+        // Luma 2.4's Home (github.com/0xProbabillity/luma-tv, MIT): tabs in the middle, a big greeting,
+        // widget pages that Left/Right turn, and the favourites as large tiles at the bottom.
+        hero.addView(buildHeader(), lp(-1, dp(44), Gravity.TOP, dp(48), dp(20), dp(48), 0));
         homeCard = new HomeCard(this, hero, lp(dp(461), dp(250), Gravity.LEFT | Gravity.TOP, dp(48), dp(84), 0, 0));
 
-        // glass cards (after github.com/TurkiHassan/custom-tv-arabic): match on the left, prayers on the right
         panels = new HomePanels(this);
-        LinearLayout cards = new LinearLayout(this);
-        cards.addView(panels.matchCard(), new LinearLayout.LayoutParams(0, -2, 1f));
-        LinearLayout.LayoutParams pc = new LinearLayout.LayoutParams(0, -2, 1f);
-        pc.leftMargin = dp(16);
-        cards.addView(panels.prayerCard(), pc);
-        hero.addView(cards, lp(-1, -2, Gravity.TOP, dp(48), dp(78), dp(48), 0));
-        hero.addView(panels.weatherCard(), lp(dp(340), -2, Gravity.LEFT | Gravity.TOP, dp(48), dp(232), 0, 0));
-        hero.addView(panels.greeting(), lp(dp(470), -2, Gravity.RIGHT | Gravity.TOP, 0, dp(256), dp(48), 0));
+        panels.prayerCard();
+        panels.weatherCard();
+        panels.matchCard();
+        hero.addView(panels.greeting(), lp(dp(620), -2, Gravity.RIGHT | Gravity.TOP, 0, dp(72), dp(52), 0));
+        hero.addView(buildBoard(), lp(-1, dp(156), Gravity.TOP, dp(48), dp(226), dp(48), 0));
+        boardDots = new LinearLayout(this);
+        boardDots.setGravity(Gravity.CENTER_VERTICAL);
+        hero.addView(boardDots, lp(-2, dp(6), Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, dp(396), 0, 0));
+        rebuildBoard();
 
         LinearLayout bottom = new LinearLayout(this);
         bottom.setOrientation(LinearLayout.VERTICAL);
         bottom.setClipChildren(false);
         bottom.setClipToPadding(false);
-        hero.addView(bottom, lp(-1, -2, Gravity.BOTTOM, dp(48), 0, dp(48), dp(14)));
+        hero.addView(bottom, lp(-1, -2, Gravity.BOTTOM, dp(48), 0, dp(48), dp(10)));
 
         title = text(34, "sans-serif-light", Color.WHITE);
         title.setShadowLayer(dp(18), 0, 0, 0x66000000);
@@ -324,45 +326,172 @@ public class MainActivity extends Activity {
         FrameLayout header = new FrameLayout(this);
         header.setClipChildren(false);
 
-        TextView home = text(22, "display", Color.WHITE);
-        home.setText("الرئيسية  ✳");
-        home.setShadowLayer(dp(8), 0, dp(1), 0x80000000);
-        header.addView(home, new FrameLayout.LayoutParams(-2, -2, Gravity.LEFT | Gravity.CENTER_VERTICAL));
-
-        // kept for updateClock / updateWifi, not shown: the greeting lives in the cards now
+        // kept for updateClock / updateWifi, not shown: the greeting lives in the hero now
         greeting = text(15, "medium", GOLD);
         date = text(14, "regular", 0xFFC6BBA4);
         wifiPill = pill("واي فاي", R.drawable.ic_wifi);
 
-        LinearLayout bar = new LinearLayout(this);
-        bar.setGravity(Gravity.CENTER_VERTICAL);
-        bar.setClipChildren(false);
-        profilePill = pill("", R.drawable.ic_people);
-        profilePill.setOnClickListener(v -> showProfileMenu(v));
-        TextView recents = iconPill(R.drawable.ic_recents);
-        recents.setOnClickListener(v -> launch(new Intent(this, RecentsActivity.class)));
-        TextView photos = iconPill(R.drawable.ic_photo);
-        photos.setOnClickListener(v -> launch(new Intent(this, PhotosActivity.class)
-                .putExtra(PhotosActivity.EXTRA_PROFILE, Profiles.active(this).id)));
-        TextView settings = iconPill(R.drawable.ic_settings);
-        settings.setOnClickListener(v -> launch(new Intent(this, HomeSettingsActivity.class)));   // ours; the TV's own is inside
-        cityPill = pill("", R.drawable.ic_place);
-        cityPill.setOnClickListener(v -> openPackage(SAVER_PKG));   // the city and teams are the screensaver's settings
-        for (TextView p : new TextView[]{profilePill, recents, photos, settings, cityPill}) {
-            bar.addView(p, llp(-2, dp(38), dp(10), 0, 0, 0));
-            pills.add(p);
-        }
-        View sep = new View(this);
-        sep.setBackgroundColor(0x4DFFFFFF);
-        bar.addView(sep, llp(dp(1), dp(26), dp(16), 0, dp(14), 0));
+        // left: the clock, plain like Luma's, and the city
+        LinearLayout left = new LinearLayout(this);
+        left.setGravity(Gravity.CENTER_VERTICAL);
+        left.setClipChildren(false);
         clock = text(26, "display", Color.WHITE);
         clock.setIncludeFontPadding(false);
         ampm = text(14, "medium", 0xE6FFFFFF);
-        bar.addView(ampm, llp(-2, -2, 0, dp(4), dp(6), 0));
-        bar.addView(clock);
+        left.addView(clock);
+        left.addView(ampm, llp(-2, -2, dp(6), dp(4), dp(18), 0));
         for (TextView t : new TextView[]{clock, ampm}) t.setShadowLayer(dp(6), 0, dp(1), 0x80000000);
-        header.addView(bar, new FrameLayout.LayoutParams(-2, -1, Gravity.RIGHT | Gravity.CENTER_VERTICAL));
+        cityPill = pill("", R.drawable.ic_place);
+        cityPill.setOnClickListener(v -> openPackage(SAVER_PKG));   // the city and teams are the screensaver's settings
+        left.addView(cityPill, new LinearLayout.LayoutParams(-2, dp(TabBar.HEIGHT)));
+        header.addView(left, new FrameLayout.LayoutParams(-2, -1, Gravity.LEFT | Gravity.CENTER_VERTICAL));
+
+        // middle: Luma's tab bar; the pill rests, as clear glass, on «الرئيسية»
+        TabBar bar = new TabBar(this, true, "الرئيسية", "التطبيقات", "المفتوحة", "صوري", "الإعدادات");
+        homeTab = bar.tab(0);
+        homeTab.setOnClickListener(v -> { scroll.smoothScrollTo(0, 0); if (!dockCards.isEmpty()) dockCards.get(0).requestFocus(); });
+        bar.tab(1).setOnClickListener(v -> { if (!gridCards.isEmpty()) gridCards.get(0).requestFocus(); });
+        bar.tab(2).setOnClickListener(v -> launch(new Intent(this, RecentsActivity.class)));
+        bar.tab(3).setOnClickListener(v -> launch(new Intent(this, PhotosActivity.class)
+                .putExtra(PhotosActivity.EXTRA_PROFILE, Profiles.active(this).id)));
+        bar.tab(4).setOnClickListener(v -> launch(new Intent(this, HomeSettingsActivity.class)));   // ours; the TV's own is inside
+        bar.setOnTabFocus((v, has) -> {
+            if (has) { lastFocusedId = v.getId(); scroll.smoothScrollTo(0, 0); fadeGlow(1f); }
+        });
+        header.addView(bar, new FrameLayout.LayoutParams(-2, dp(TabBar.HEIGHT), Gravity.CENTER));
+
+        // right: who is watching
+        profilePill = pill("", R.drawable.ic_people);
+        profilePill.setOnClickListener(v -> showProfileMenu(v));
+        header.addView(profilePill, new FrameLayout.LayoutParams(-2, dp(TabBar.HEIGHT), Gravity.RIGHT | Gravity.CENTER_VERTICAL));
+
+        // D-pad order is screen order, left to right
+        pills.add(cityPill);
+        pills.addAll(bar.onScreen());
+        pills.add(profilePill);
         return header;
+    }
+
+    private TextView homeTab;
+
+    /** Luma's spring: a quick rise with a little settle (from its Widget.java). */
+    static final android.view.animation.Interpolator SPRING = t -> {
+        if (t >= 1) return 1;
+        double time = t * .42, f = 24, d = .7, q = f * Math.sqrt(1 - d * d);
+        return (float) (1 - Math.exp(-d * f * time) * (Math.cos(q * time) + d * f / q * Math.sin(q * time)));
+    };
+
+    // ---------------------------------------------------------------- widget pages
+
+    private FrameLayout board;
+    private LinearLayout boardDots;
+    private final List<LinearLayout> pages = new ArrayList<>();
+    private int page;
+
+    /** The cards' frame: one stop for the D-pad. Left/Right turn the page (Arabic order: the next one is on
+     *  the left), OK opens the city and teams. */
+    private View buildBoard() {
+        board = new FrameLayout(this);
+        board.setId(View.generateViewId());
+        board.setFocusable(true);
+        board.setClipChildren(false);
+        board.setClipToPadding(false);
+        board.setOnFocusChangeListener((v, has) -> {
+            if (has) { lastFocusedId = v.getId(); scroll.smoothScrollTo(0, 0); }
+            ringPage(has);
+            if (!pages.isEmpty()) pages.get(page).animate().scaleX(has ? 1.025f : 1f).scaleY(has ? 1.025f : 1f)
+                    .setInterpolator(has ? SPRING : new DecelerateInterpolator()).setDuration(has ? 460 : 300)
+                    .setUpdateListener(a -> Glass.invalidateAll()).start();
+            paintDots();
+        });
+        board.setOnKeyListener((v, code, e) -> {
+            if (e.getAction() != KeyEvent.ACTION_DOWN) return false;
+            if (code == KeyEvent.KEYCODE_DPAD_LEFT) { if (page < pages.size() - 1) showPage(page + 1, -1); return true; }
+            if (code == KeyEvent.KEYCODE_DPAD_RIGHT) { if (page > 0) showPage(page - 1, 1); return true; }
+            if (code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER) { openPackage(SAVER_PKG); return true; }
+            return false;
+        });
+        return board;
+    }
+
+    /** Two cards a page, in the order the account shows them; called again when «الإعدادات» hides one. */
+    private void rebuildBoard() {
+        for (LinearLayout p : pages) { p.removeAllViews(); board.removeView(p); }
+        pages.clear();
+        List<View> cards = new ArrayList<>();
+        for (View v : new View[]{panels.prayerView, panels.weatherView, panels.matchView})
+            if (v.getVisibility() == View.VISIBLE) cards.add(v);
+        for (int i = 0; i < cards.size(); i += 2) {
+            LinearLayout pg = new LinearLayout(this);
+            pg.setClipChildren(false);
+            for (int k = i; k < Math.min(i + 2, cards.size()); k++) {
+                View c = cards.get(k);
+                if (c.getParent() != null) ((ViewGroup) c.getParent()).removeView(c);
+                LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, -1, k == i ? 1.5f : 1f);
+                if (k > i) p.rightMargin = dp(20);
+                pg.addView(c, p);
+            }
+            if (pg.getChildCount() == 1) pg.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1f));
+            Ui.rtl(pg);   // the wide card on the right
+            pg.setVisibility(pages.isEmpty() ? View.VISIBLE : View.GONE);
+            board.addView(pg, new FrameLayout.LayoutParams(-1, -1));
+            pages.add(pg);
+        }
+        page = 0;
+        board.setVisibility(pages.isEmpty() ? View.GONE : View.VISIBLE);
+        boardDots.removeAllViews();
+        if (pages.size() > 1) {
+            for (int i = 0; i < pages.size(); i++) boardDots.addView(new View(this), llp(dp(6), dp(6), dp(3), 0, dp(3), 0));
+            Ui.rtl(boardDots);   // first page's dot on the right
+        }
+        paintDots();
+    }
+
+    private void showPage(int to, int dir) {
+        LinearLayout old = pages.get(page), now = pages.get(to);
+        float d = dp(70) * dir;
+        old.animate().alpha(0f).translationX(-d).scaleX(1f).scaleY(1f).setDuration(200).setInterpolator(new DecelerateInterpolator())
+                .withEndAction(() -> { old.setVisibility(View.GONE); old.setTranslationX(0); old.setAlpha(1f); }).start();
+        now.setVisibility(View.VISIBLE);
+        now.setAlpha(0f);
+        now.setTranslationX(d);
+        float s = board.hasFocus() ? 1.025f : 1f;
+        now.animate().alpha(1f).translationX(0).scaleX(s).scaleY(s).setDuration(460).setInterpolator(SPRING)
+                .setUpdateListener(a -> Glass.invalidateAll()).start();
+        ringPage(false);
+        page = to;
+        ringPage(board.hasFocus());
+        paintDots();
+    }
+
+    /** Focused cards get the tiles' white rim. */
+    private void ringPage(boolean on) {
+        if (pages.isEmpty()) return;
+        LinearLayout pg = pages.get(page);
+        for (int i = 0; i < pg.getChildCount(); i++) {
+            View c = pg.getChildAt(i);
+            if (!(c.getBackground() instanceof Glass)) continue;
+            GradientDrawable ring = null;
+            if (on) {
+                ring = Ui.rounded(0x0FFFFFFF, 24, this);
+                ring.setStroke(dp(1.5f), 0xF0FFFFFF);
+            }
+            c.setForeground(ring);
+        }
+    }
+
+    /** Luma's page dots: the current one a short bar. */
+    private void paintDots() {
+        int n = boardDots.getChildCount();
+        boolean lit = board.hasFocus();
+        for (int j = 0; j < n; j++) {
+            View dot = boardDots.getChildAt(j);
+            boolean on = n - 1 - j == page;   // reversed by Ui.rtl
+            GradientDrawable g = Ui.rounded(on ? (lit ? 0xFFFFFFFF : 0xE6FFFFFF) : 0x80FFFFFF, 3, this);
+            dot.setBackground(g);
+            dot.getLayoutParams().width = dp(on ? 18 : 6);
+        }
+        boardDots.requestLayout();
     }
 
     private TextView cityPill;
@@ -386,14 +515,14 @@ public class MainActivity extends Activity {
         ic.setTint(0xE6FFFFFF);
         p.setCompoundDrawables(null, null, ic, null);
         p.setCompoundDrawablePadding(dp(8));
-        p.setPadding(dp(14), 0, dp(14), 0);
+        p.setPadding(dp(16), 0, dp(16), 0);
         p.setFocusable(true);
         p.setId(View.generateViewId());
         // liquid glass at rest, bright white glass when focused
-        Glass glass = new Glass(p, dp(13), 0x0AFFFFFF, 0xC0FFFFFF, true, true);   // clear liquid glass
+        Glass glass = new Glass(p, dp(TabBar.HEIGHT / 2f), 0x1FFFFFFF, 0x33FFFFFF, false, true);   // the tab bar's glass
         p.setShadowLayer(dp(4), 0, dp(1), 0xA6000000);
         GradientDrawable lit = new GradientDrawable();
-        lit.setCornerRadius(dp(13));
+        lit.setCornerRadius(dp(TabBar.HEIGHT / 2f));
         lit.setColor(0xF2FFFFFF);
         p.setBackground(glass);
         p.setOnFocusChangeListener((v, has) -> {
@@ -444,9 +573,11 @@ public class MainActivity extends Activity {
         dockCards.clear();
         gridCards.clear();
 
+        // Luma's row: large tiles of one size, centred; more than six share the width
+        boolean fixed = dock.size() <= 6;
         for (int i = 0; i < dock.size(); i++) {
             View tile = tile(dock.get(i), true);
-            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, -2, 1f);
+            LinearLayout.LayoutParams p = fixed ? new LinearLayout.LayoutParams(dp(124), -2) : new LinearLayout.LayoutParams(0, -2, 1f);
             p.setMargins(i == 0 ? 0 : dp(10), 0, i == dock.size() - 1 ? 0 : dp(10), 0);
             dockRow.addView(tile, p);
         }
@@ -494,11 +625,11 @@ public class MainActivity extends Activity {
         card.setClipToOutline(true);
         card.setOutlineProvider(new ViewOutlineProvider() {
             @Override public void getOutline(View v, Outline o) {
-                o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), dp(14));
+                o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), dp(TILE_RADIUS));
             }
         });
         if (app.isBanner) card.setBackgroundColor(0xFF1C1C1E);
-        else card.setBackground(new Glass(card, dp(14), 0x24FFFFFF, 0x00FFFFFF, true));   // icon floats on glass
+        else card.setBackground(new Glass(card, dp(TILE_RADIUS), 0x24FFFFFF, 0x00FFFFFF, false));   // icon floats on glass
 
         ImageView img = new ImageView(this);
         img.setImageDrawable(app.art);
@@ -511,28 +642,21 @@ public class MainActivity extends Activity {
             img.setPadding(dp(22), dp(14), dp(22), dp(14));
         }
 
-        // A glass rim on every tile: light on the top edge, a soft sheen across the corner.
-        GradientDrawable edge = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{0x22FFFFFF, 0x00FFFFFF, 0x00FFFFFF});
-        edge.setCornerRadius(dp(14));
-        edge.setStroke(dp(1), 0x4DFFFFFF);
-        View rim = new View(this);
-        rim.setBackground(edge);
-        card.addView(rim, new FrameLayout.LayoutParams(-1, -1));
-
-        // Focus ring and sheen, drawn above the art.
-        GradientDrawable ring = new GradientDrawable();
-        ring.setCornerRadius(dp(14));
-        ring.setStroke(dp(2), 0xE6FFFFFF);
-        ring.setOrientation(GradientDrawable.Orientation.TL_BR);
-        ring.setColors(new int[]{0x26FFFFFF, 0x00FFFFFF, 0x00FFFFFF});
+        // Luma's edges: a hairline at rest; on focus a thin white rim and a light sweeping across
+        GradientDrawable hair = Ui.rounded(0x00000000, TILE_RADIUS, this);
+        hair.setStroke(Math.max(1, dp(0.6f)), 0x1FFFFFFF);
+        card.setForeground(hair);
         View shine = new View(this);
-        shine.setBackground(ring);
+        shine.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{0x00FFFFFF, 0x33FFFFFF, 0x00FFFFFF}));
         shine.setAlpha(0f);
         card.addView(shine, new FrameLayout.LayoutParams(-1, -1));
+        GradientDrawable rim = Ui.rounded(0x00000000, TILE_RADIUS, this);
+        rim.setStroke(dp(1.5f), 0xF0FFFFFF);
 
         box.addView(card, new LinearLayout.LayoutParams(-1, -2));
 
-        TextView label = text(11, "sans-serif-medium", Color.WHITE);
+        TextView label = text(13, "sans-serif-medium", Color.WHITE);
+        label.setShadowLayer(dp(4), 0, dp(1), 0x99000000);
         label.setText(app.label);
         label.setSingleLine(true);
         label.setGravity(Gravity.CENTER);
@@ -544,11 +668,12 @@ public class MainActivity extends Activity {
                 .setComponent(app.component)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)));
         card.setOnFocusChangeListener((v, has) -> {
-            float s = has ? (inDock ? 1.12f : 1.1f) : 1f;
-            v.animate().scaleX(s).scaleY(s).translationZ(has ? dp(14) : 0)
-                    .setInterpolator(has ? new OvershootInterpolator(1.8f) : new DecelerateInterpolator())
-                    .setDuration(has ? 320 : 200).start();
-            shine.animate().alpha(has ? 1f : 0f).setDuration(160).start();
+            float s = has ? 1.11f : 1f;   // Luma's lift
+            v.animate().scaleX(s).scaleY(s).translationY(has ? -dp(3) : 0).translationZ(has ? dp(14) : 0)
+                    .setInterpolator(has ? SPRING : new DecelerateInterpolator())
+                    .setDuration(has ? 460 : 300).start();
+            ((FrameLayout) v).setForeground(has ? rim : hair);
+            shine.animate().alpha(has ? 0.6f : 0f).setDuration(200).start();
             label.animate().alpha(has ? 1f : 0f).translationY(has ? dp(4) : 0).setDuration(200).start();
             if (!has) return;
             lastFocusedId = v.getId();
@@ -576,14 +701,20 @@ public class MainActivity extends Activity {
     /** Explicit D-pad targets: one row per press, ends of rows and of the top bar don't wrap. */
     private void wireFocus() {
         int d = dockCards.size(), g = gridCards.size();
+        int midDock = d > 0 ? dockCards.get(Math.min(d - 1, d / 2)).getId() : View.NO_ID;
+        boolean cards = board.getVisibility() == View.VISIBLE;
         for (int i = 0; i < pills.size(); i++) {
             View p = pills.get(i);
             p.setNextFocusLeftId(i == 0 ? p.getId() : pills.get(i - 1).getId());
             p.setNextFocusRightId(i == pills.size() - 1 ? p.getId() : pills.get(i + 1).getId());
             p.setNextFocusUpId(p.getId());
-            p.setNextFocusDownId(d > 0 ? dockCards.get(Math.min(d - 1, d / 2)).getId() : p.getId());
+            p.setNextFocusDownId(cards ? board.getId() : d > 0 ? midDock : p.getId());
         }
-        int topId = pills.get(0).getId();
+        board.setNextFocusUpId(homeTab.getId());
+        board.setNextFocusDownId(d > 0 ? midDock : board.getId());
+        board.setNextFocusLeftId(board.getId());
+        board.setNextFocusRightId(board.getId());
+        int topId = cards ? board.getId() : homeTab.getId();
         for (int i = 0; i < d; i++) {
             View c = dockCards.get(i);
             c.setNextFocusUpId(topId);
@@ -696,7 +827,7 @@ public class MainActivity extends Activity {
         bg.setCornerRadius(dp(16));
         bg.setColor(0xF02A2A2E);
         bg.setStroke(dp(1), 0x26FFFFFF);
-        list.setBackground(new Glass(list, dp(18), 0xB3101010, 0x66FFFFFF, true));
+        list.setBackground(new Glass(list, dp(18), 0xB3101010, 0x33FFFFFF, false));
         PopupWindow pw = new PopupWindow(list, dp(230), -2, true);
         List<TextView> rows = new ArrayList<>();
         for (int k = 0; k < labels.size(); k++) rows.add(inputRow(labels.get(k), actions.get(k)));
@@ -727,7 +858,7 @@ public class MainActivity extends Activity {
         bg.setCornerRadius(dp(16));
         bg.setColor(0xF02A2A2E);
         bg.setStroke(dp(1), 0x26FFFFFF);
-        list.setBackground(new Glass(list, dp(18), 0xB3101010, 0x66FFFFFF, true));
+        list.setBackground(new Glass(list, dp(18), 0xB3101010, 0x33FFFFFF, false));
 
         PopupWindow pw = new PopupWindow(list, dp(200), -2, true);
         List<TextView> rows = new ArrayList<>();
@@ -856,14 +987,15 @@ public class MainActivity extends Activity {
         profilesVersion = Profiles.version(this);
         Profiles.Profile p = Profiles.active(this);
         panels.applyChoices();
+        rebuildBoard();
         android.graphics.drawable.BitmapDrawable av =
-                new android.graphics.drawable.BitmapDrawable(getResources(), Profiles.avatar(this, p, dp(22)));
-        av.setBounds(0, 0, dp(22), dp(22));
+                new android.graphics.drawable.BitmapDrawable(getResources(), Profiles.avatar(this, p, dp(32)));
+        av.setBounds(0, 0, dp(32), dp(32));
         profilePill.setCompoundDrawables(null, null, av, null);
         profilePill.setText(p.name);
         panels.setName(p.name);   // «مساء الخير يا AZ.»
         updateClock();
-        profilePill.setPadding(dp(14), 0, dp(6), 0);
+        profilePill.setPadding(dp(16), 0, dp(6), 0);
         dockApps = loadDock();
         buildApps();
         wallIndex = -1;
@@ -999,6 +1131,10 @@ public class MainActivity extends Activity {
     /** Decode the next photo off the main thread, then crossfade it in over the current one. */
     private void nextWallpaper() {
         handler.removeCallbacks(rotateWallpaper);
+        // a photo chosen in «صوري» stays put; no rotation
+        String pick = Profiles.wallpaper(this, Profiles.active(this).id);
+        if (!pick.isEmpty() && showPicked(pick)) return;
+        shownPick = null;
         // the account's own photos, when it has any, replace the Saudi ones
         final List<java.io.File> mine = Profiles.photos(this, Profiles.active(this).id);
         if (!mine.isEmpty()) {
@@ -1053,6 +1189,29 @@ public class MainActivity extends Activity {
             runOnUiThread(() -> showWallpaper(result));
         }).start();
         scheduleWallpaper(WALLPAPER_INTERVAL_MS);
+    }
+
+    private String shownPick;
+
+    /** false when the chosen photo is gone, so the rotation takes over. */
+    private boolean showPicked(String pick) {
+        boolean bundled = pick.startsWith("a:");
+        String name = bundled ? pick.substring(2) : pick;
+        if (!name.matches("[A-Za-z0-9_-]+\\.jpg")) return false;
+        java.io.File f = new java.io.File(Profiles.photosDir(this, Profiles.active(this).id), name);
+        if (!bundled && !f.isFile()) return false;
+        if (bundled && !Arrays.asList(wallpapers).contains(name)) return false;
+        wallChangedAt = SystemClock.elapsedRealtime();
+        if (pick.equals(shownPick)) return true;   // already up: no crossfade to itself
+        shownPick = pick;
+        new Thread(() -> {
+            Bitmap bm = null;
+            try (java.io.InputStream in = bundled ? getAssets().open("wallpapers/" + name) : new java.io.FileInputStream(f)) { bm = decode(in); }
+            catch (java.io.IOException ignored) { }
+            Bitmap result = bm;
+            runOnUiThread(() -> showWallpaper(result));
+        }).start();
+        return true;
     }
 
     private void showWallpaper(Bitmap bm) {
@@ -1121,6 +1280,12 @@ public class MainActivity extends Activity {
         header.animate().alpha(1f).translationY(0).setDuration(500).setStartDelay(80).start();
         title.setAlpha(0f);
         title.animate().alpha(1f).setDuration(500).setStartDelay(200).start();
+        for (View v : new View[]{panels.greetView, board, boardDots}) {
+            v.setAlpha(0f);
+            v.setTranslationY(dp(16));
+            v.animate().alpha(1f).translationY(0).setInterpolator(new DecelerateInterpolator(2f))
+                    .setDuration(500).setStartDelay(140).withEndAction(Glass::invalidateAll).start();
+        }
         for (int i = 0; i < dockRow.getChildCount(); i++) {
             View t = dockRow.getChildAt(i);
             t.setAlpha(0f);
@@ -1217,6 +1382,8 @@ public class MainActivity extends Activity {
         }
         return super.dispatchKeyEvent(e);
     }
+
+    static final int TILE_RADIUS = 16;
 
     /** 16:9 container. */
     static final class AspectFrame extends FrameLayout {

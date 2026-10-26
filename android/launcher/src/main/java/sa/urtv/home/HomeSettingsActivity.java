@@ -61,7 +61,7 @@ public class HomeSettingsActivity extends Activity {
         LinearLayout sheet = new LinearLayout(this);
         sheet.setOrientation(LinearLayout.VERTICAL);
         sheet.setPadding(dp(28), dp(20), dp(28), dp(16));
-        sheet.setBackground(new Glass(sheet, dp(28), 0x1FFFFFFF, 0x66FFFFFF, true));
+        sheet.setBackground(new Glass(sheet, dp(28), 0x1FFFFFFF, 0x33FFFFFF, false));
         root.addView(sheet, new FrameLayout.LayoutParams(dp(840), dp(480), Gravity.CENTER));
 
         FrameLayout head = new FrameLayout(this);

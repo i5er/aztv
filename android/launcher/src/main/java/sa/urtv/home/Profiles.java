@@ -261,7 +261,18 @@ final class Profiles {
     }
 
     static boolean deletePhoto(Context c, String id, String name) {
-        return name.matches("[A-Za-z0-9_-]+\\.jpg") && new File(photosDir(c, id), name).delete();
+        boolean gone = name.matches("[A-Za-z0-9_-]+\\.jpg") && new File(photosDir(c, id), name).delete();
+        if (gone && name.equals(wallpaper(c, id))) setWallpaper(c, id, "");
+        return gone;
+    }
+
+    /** The account's chosen wallpaper in «صوري»: one of its photos ("p….jpg"), a bundled one ("a:….jpg"),
+     *  or "" for the usual rotation. */
+    static String wallpaper(Context c, String id) { return prefs(c).getString("wallpaper_" + id, ""); }
+
+    static void setWallpaper(Context c, String id, String pick) {
+        prefs(c).edit().putString("wallpaper_" + id, pick).apply();
+        notifyChanged(c);
     }
 
     /** A photo avatar: the middle square, 400 px. */

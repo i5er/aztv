@@ -80,12 +80,13 @@ final class HomePanels {
 
     // ---------------------------------------------------------------- views
 
-    /** Glass card: dark tinted blur of the photo, soft rim. */
+    /** A Luma widget card: frosted photo, a faint dark tint, a thin light rim, round corners. */
     private LinearLayout card() {
         LinearLayout c = new LinearLayout(a);
         c.setOrientation(LinearLayout.VERTICAL);
-        c.setPadding(dp(18), dp(12), dp(18), dp(10));
-        c.setBackground(new Glass(c, dp(22), 0x14000000, 0xB3FFFFFF, true, true));   // clear liquid glass
+        c.setGravity(Gravity.CENTER_VERTICAL);
+        c.setPadding(dp(22), dp(14), dp(22), dp(12));
+        c.setBackground(new Glass(c, dp(24), 0x2E000000, 0x33FFFFFF, false));   // Luma's hairline edge
         return c;
     }
 
@@ -224,7 +225,6 @@ final class HomePanels {
     View weatherCard() {
         LinearLayout c = card();
         weatherView = c;
-        c.setPadding(dp(18), dp(12), dp(18), dp(12));
         LinearLayout top = new LinearLayout(a);
         top.setGravity(Gravity.CENTER_VERTICAL);
         wxIcon = t(30, "regular", 0xFFFFD45A);
@@ -278,17 +278,19 @@ final class HomePanels {
         greetView = c;
         c.setOrientation(LinearLayout.VERTICAL);
         c.setGravity(Gravity.RIGHT);
-        gDate = t(15, "regular", 0xE6FFFFFF);
-        gHello = t(44, "display", Color.WHITE);
+        // Luma's hero: the big hello first, then the day and the sky in a quieter line
+        gHello = t(48, "display", Color.WHITE);
         gHello.setShadowLayer(dp(16), 0, dp(2), 0x80000000);
-        gSky = t(15, "regular", 0xE6FFFFFF);
-        gSun = t(13, "regular", 0xCCFFFFFF);
-        for (TextView v : new TextView[] {gDate, gHello, gSky, gSun}) {
+        gDate = t(17, "regular", 0xE6FFFFFF);
+        gSky = t(15, "regular", 0xCCFFFFFF);
+        gSun = t(13, "regular", 0xB3FFFFFF);
+        for (TextView v : new TextView[] {gHello, gDate, gSky, gSun}) {
             v.setGravity(Gravity.RIGHT);
             if (v != gHello) v.setShadowLayer(dp(6), 0, dp(1), 0x99000000);
             c.addView(v, lp(-1, -2, 0));
         }
-        ((LinearLayout.LayoutParams) gHello.getLayoutParams()).setMargins(0, dp(2), 0, dp(4));
+        ((LinearLayout.LayoutParams) gHello.getLayoutParams()).setMargins(0, 0, 0, dp(6));
+        ((LinearLayout.LayoutParams) gSky.getLayoutParams()).setMargins(0, dp(4), 0, dp(2));
         return c;
     }
 

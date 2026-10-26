@@ -73,4 +73,5 @@ back to `.github/workflows/` to use them.
 AZ TV is built on [UrTV](https://github.com/tshi-dev/UrTV). The home screen grew from
 [mihirgupta0900/tv-home](https://github.com/mihirgupta0900/tv-home) (MIT, see
 [android/launcher/LICENSE-tv-home](android/launcher/LICENSE-tv-home)) and its look follows
-[TurkiHassan/custom-tv-arabic](https://github.com/TurkiHassan/custom-tv-arabic). Photos: [docs/PHOTO-CREDITS.md](docs/PHOTO-CREDITS.md).
+[TurkiHassan/custom-tv-arabic](https://github.com/TurkiHassan/custom-tv-arabic); the layout of tabs, greeting,
+widget pages and large tiles follows [0xProbabillity/luma-tv](https://github.com/0xProbabillity/luma-tv) 2.4 (MIT). Photos: [docs/PHOTO-CREDITS.md](docs/PHOTO-CREDITS.md).
